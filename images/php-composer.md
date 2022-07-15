@@ -20,3 +20,35 @@ services:
     command: php -S lumen:8000 -t public
     restart: always
 ```
+
+
+```Dockerfile
+FROM node:12.13.0 as build
+WORKDIR /usr/src/app
+COPY package.json /usr/src/app/
+RUN npm install -g npm@latest
+RUN npm install react@latest --lagecy-peer-deps --force
+Copy . .
+RUN npm run build
+
+FROM ubuntu:latest
+RUN apt update && apt install nginx -y
+RUN mkdir -p /var/www/html/react.thecloudtech.in
+COPY --from=build /usr/src/app/build /var/www/html/react.thecloudtech.in
+RUN rm -rf etc/nginx/sites-enabled/default
+
+COPY certs/react.thecloudtech.in/react.thecloudtech.in.conf /etc/nginx/sites-enabled/react.thecloudtech.in.conf
+COPY certs/lumen.thecloudtech.in/lumen.thecloudtech.in.conf /etc/nginx/sites-enabled/lumen.thecloudtech.in.conf
+
+RUN mkdir -p /etc/nginx/ssl-certificate/
+COPY certs/react.thecloudtech.in/certificate.crt /etc/nginx/ssl-certificate/
+COPY certs/react.thecloudtech.in/private.key /etc/nginx/ssl-certificate/
+
+RUN mkdir -p /etc/nginx/ssl/
+COPY certs/lumen.thecloudtech.in/certificate.crt /etc/nginx/ssl/
+COPY certs/lumen.thecloudtech.in/private.key /etc/nginx/ssl/
+
+RUN ln -sf /dev/stdout /var/log/nginx/react.thecloudtech.in.access.log \
+        && ln -sf /dev/stderr /var/log/nginx/react.thecloudtech.in.error.log
+CMD ["nginx", "-g", "daemon off;"]
+```
