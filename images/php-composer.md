@@ -1,5 +1,5 @@
 ```Dockerfile
-FROM php:7.4.0-fpm-alpine
+FROM php:7.4.0-alpine-buster
 
 WORKDIR /var/www/html/
 RUN docker-php-ext-install mysqli pdo pdo_mysql
