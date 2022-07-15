@@ -52,3 +52,32 @@ RUN ln -sf /dev/stdout /var/log/nginx/react.thecloudtech.in.access.log \
         && ln -sf /dev/stderr /var/log/nginx/react.thecloudtech.in.error.log
 CMD ["nginx", "-g", "daemon off;"]
 ```
+
+```
+server {
+    listen       80;
+    server_name  react.thecloudtech.in;
+    return 301 https://react.thecloudtech.in;
+
+    location / {
+        root   /var/www/html/react.thecloudtech.in/;
+        index  index.html index.htm;
+    }
+}
+
+server {
+    listen               443 ssl;
+    ssl                  on;
+    ssl_certificate      /etc/nginx/ssl-certificate/certificate.crt;
+    ssl_certificate_key  /etc/nginx/ssl-certificate/private.key;
+    server_name          react.thecloudtech.in;
+    access_log           /var/log/nginx/react.thecloudtech.in.access.log;
+    error_log            /var/log/nginx/react.thecloudtech.in.error.log;
+
+    location     / {
+        root         /var/www/html/react.thecloudtech.in/;
+        index        index.html index.htm;
+    }
+}   
+```
+
